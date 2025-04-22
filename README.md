@@ -42,19 +42,3 @@ LIP lets autonomous agents (LLMs, gateways, services) communicate in a shared la
 - Explainable trust negotiation
 - Federated, decentralized reasoning
 
----
-
-## 📜 License
-
-This protocol is proposed under the **MIT License** (see `LICENSE`).
-
----
-
-## 👁️‍🗨️ Vision
-
-This project seeks to define a **new foundational layer** for AI-native computation — where agents interact through *meaningful purpose*, not passwords.
-
-> “Authenticate with your reason, not your key.”
-
-Created by Angelo Ovidi [@madragana]([https://github.com/madragana]).
-
