@@ -19,6 +19,30 @@ LIP lets autonomous agents (LLMs, gateways, services) communicate in a shared la
 | 3️⃣       | Topos   | Context: Where the agent is and what domain it belongs to |
 | 4️⃣       | Physis  | Evolution: How the intent adapts, mutates, retries, or decays |
 
+<<<<<<< HEAD
 ## 📜 License
 
 Apache 2.0 – © 2025 Angelo Ovidi
+=======
+---
+
+## 🧱 Files
+
+| Path                      | Purpose |
+|---------------------------|---------|
+| `schemas/lip-4d-v0.2.json` | Official LIP 0.2 JSON Schema |
+| `lip-spec.md`              | Full spec with examples and field descriptions |
+| `examples/`                | Sample LIP intents for real-world use cases |
+| `reference-agent/`        | Simple agent that generates and validates LIP messages |
+
+---
+
+## 🧠 Use Cases
+
+- AI-native authentication
+- Intent-based access control
+- LLM-to-LLM collaboration
+- Explainable trust negotiation
+- Federated, decentralized reasoning
+
+>>>>>>> 136a5ecbd9814c5cd2e06e25016a8066ee5280b3
