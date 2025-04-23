@@ -8,8 +8,6 @@ This project defines:
 - Example LIP intent documents
 - A simple Python reference agent for generating and validating LIP intents
 
----
-
 ## 🌐 What is LIP?
 
 LIP lets autonomous agents (LLMs, gateways, services) communicate in a shared language of:
@@ -21,40 +19,6 @@ LIP lets autonomous agents (LLMs, gateways, services) communicate in a shared la
 | 3️⃣       | Topos   | Context: Where the agent is and what domain it belongs to |
 | 4️⃣       | Physis  | Evolution: How the intent adapts, mutates, retries, or decays |
 
----
-
-## 🧱 Files
-
-| Path                      | Purpose |
-|---------------------------|---------|
-| `schemas/lip-4d-v0.2.json` | Official LIP 0.2 JSON Schema |
-| `lip-spec.md`              | Full spec with examples and field descriptions |
-| `examples/`                | Sample LIP intents for real-world use cases |
-| `reference-agent/`        | Simple agent that generates and validates LIP messages |
-
----
-
-## 🧠 Use Cases
-
-- AI-native authentication
-- Intent-based access control
-- LLM-to-LLM collaboration
-- Explainable trust negotiation
-- Federated, decentralized reasoning
-
----
-
 ## 📜 License
 
-This protocol is proposed under the **MIT License** (see `LICENSE`).
-
----
-
-## 👁️‍🗨️ Vision
-
-This project seeks to define a **new foundational layer** for AI-native computation — where agents interact through *meaningful purpose*, not passwords.
-
-> “Authenticate with your reason, not your key.”
-
-Created by Angelo Ovidi [@madragana]([https://github.com/madragana]).
-
+Apache 2.0 – © 2025 Angelo Ovidi
