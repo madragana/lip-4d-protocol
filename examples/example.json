@@ -1,0 +1,1 @@
+[{"intent": "fetch_user_profile", "actor": {"agent_name": "profile_viewer", "capabilities": ["read"], "reputation": {"score": 0.95}}}]
