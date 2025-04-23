@@ -1,7 +1,7 @@
 # LIP-4D Specification (v0.2)
 
 ## Overview
-The **LLM Intent Protocol (LIP)** is a 4-dimensional semantic language designed for AI-to-AI interaction based on expressed **intent**, rather than static credentials. It is optimized for environments where LLM agents, gateways, or autonomous services must communicate and authenticate based on purpose, context, reasoning, and evolution.
+The **LLM Intent Protocol (LIP)** aka LIP-4D is a 4-dimensional semantic language designed for AI-to-AI interaction based on expressed **intent**, rather than static credentials. It is optimized for environments where LLM agents, gateways, or autonomous services must communicate and authenticate based on purpose, context, reasoning, and evolution.
 
 ---
 
