@@ -151,4 +151,4 @@ Encodes how the intent mutates, retries, learns, and expires.
 Proposed: Apache 2.0
 
 ## Maintainer
-@angelo-ovidi (initial creator)
+Angelo Ovidi (initial creator)
