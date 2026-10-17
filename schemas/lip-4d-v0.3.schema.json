@@ -1,0 +1,621 @@
+{
+  "type": "object",
+  "required": [
+    "lip_version",
+    "message_type",
+    "message_id",
+    "issuer",
+    "audience",
+    "issued_at",
+    "expires_at",
+    "proof"
+  ],
+  "properties": {
+    "lip_version": {
+      "const": "0.3"
+    },
+    "message_type": {
+      "enum": [
+        "intent",
+        "challenge",
+        "attestation",
+        "grant",
+        "denial",
+        "revocation",
+        "invocation"
+      ]
+    },
+    "message_id": {
+      "type": "string",
+      "format": "uri"
+    },
+    "in_reply_to": {
+      "type": "string",
+      "format": "uri"
+    },
+    "issuer": {
+      "type": "string",
+      "format": "uri"
+    },
+    "audience": {
+      "type": "string",
+      "format": "uri"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nonce": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "intent": {
+      "type": "object",
+      "required": [
+        "action",
+        "resource",
+        "purpose"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resource": {
+          "type": "string",
+          "format": "uri"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "constraints": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "dimensions": {
+      "type": "object",
+      "required": [
+        "chronos",
+        "logos",
+        "topos",
+        "physis"
+      ],
+      "properties": {
+        "chronos": {
+          "type": "object",
+          "required": [
+            "not_before",
+            "not_after",
+            "sequence"
+          ],
+          "properties": {
+            "not_before": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "not_after": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "prior_message_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "max_clock_skew_seconds": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": true
+        },
+        "logos": {
+          "type": "object",
+          "required": [
+            "rationale"
+          ],
+          "properties": {
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "topos": {
+          "type": "object",
+          "required": [
+            "trust_domain"
+          ],
+          "properties": {
+            "trust_domain": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
+        },
+        "physis": {
+          "type": "object",
+          "required": [
+            "intent_id",
+            "revision"
+          ],
+          "properties": {
+            "intent_id": {
+              "type": "string",
+              "format": "uri"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "parent_intent_id": {
+              "type": "string",
+              "format": "uri"
+            },
+            "retry_count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "format"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {},
+          "uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "digest": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": true,
+        "oneOf": [
+          {
+            "required": [
+              "value"
+            ],
+            "not": {
+              "required": [
+                "uri"
+              ]
+            }
+          },
+          {
+            "required": [
+              "uri"
+            ],
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "requirements": {
+      "type": "object"
+    },
+    "authorization": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "grant_id": {
+          "type": "string",
+          "format": "uri"
+        },
+        "intent_digest": {
+          "type": "string",
+          "pattern": "^sha-256:[A-Za-z0-9_-]{43}$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "audience": {
+          "type": "string",
+          "format": "uri"
+        },
+        "constraints": {
+          "type": "object"
+        },
+        "confirmation": {},
+        "status": {
+          "type": "string"
+        },
+        "effective_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason_code": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "proof": {
+      "type": "object",
+      "required": [
+        "type",
+        "jws"
+      ],
+      "properties": {
+        "type": {
+          "const": "jws-detached"
+        },
+        "jws": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+\\.\\.[A-Za-z0-9_-]+$"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "intent"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "intent",
+          "dimensions"
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "challenge"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "nonce",
+          "requirements"
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "attestation"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "nonce",
+          "intent",
+          "dimensions"
+        ],
+        "properties": {}
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "grant"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "authorization"
+        ],
+        "properties": {
+          "authorization": {
+            "type": "object",
+            "required": [
+              "status",
+              "grant_id",
+              "intent_digest",
+              "expires_at",
+              "audience",
+              "constraints",
+              "confirmation"
+            ],
+            "properties": {
+              "grant_id": {
+                "type": "string",
+                "format": "uri"
+              },
+              "intent_digest": {
+                "type": "string",
+                "pattern": "^sha-256:[A-Za-z0-9_-]{43}$"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "audience": {
+                "type": "string",
+                "format": "uri"
+              },
+              "constraints": {
+                "type": "object"
+              },
+              "confirmation": {},
+              "status": {
+                "const": "granted"
+              },
+              "effective_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "denial"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "authorization"
+        ],
+        "properties": {
+          "authorization": {
+            "type": "object",
+            "required": [
+              "status"
+            ],
+            "properties": {
+              "grant_id": {
+                "type": "string",
+                "format": "uri"
+              },
+              "intent_digest": {
+                "type": "string",
+                "pattern": "^sha-256:[A-Za-z0-9_-]{43}$"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "audience": {
+                "type": "string",
+                "format": "uri"
+              },
+              "constraints": {
+                "type": "object"
+              },
+              "confirmation": {},
+              "status": {
+                "const": "denied"
+              },
+              "effective_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "revocation"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "authorization"
+        ],
+        "properties": {
+          "authorization": {
+            "type": "object",
+            "required": [
+              "grant_id",
+              "intent_digest",
+              "effective_at",
+              "reason_code"
+            ],
+            "properties": {
+              "grant_id": {
+                "type": "string",
+                "format": "uri"
+              },
+              "intent_digest": {
+                "type": "string",
+                "pattern": "^sha-256:[A-Za-z0-9_-]{43}$"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "audience": {
+                "type": "string",
+                "format": "uri"
+              },
+              "constraints": {
+                "type": "object"
+              },
+              "confirmation": {},
+              "status": {
+                "type": "string"
+              },
+              "effective_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "message_type": {
+            "const": "invocation"
+          }
+        },
+        "required": [
+          "message_type"
+        ]
+      },
+      "then": {
+        "required": [
+          "in_reply_to",
+          "intent",
+          "dimensions",
+          "authorization"
+        ],
+        "properties": {
+          "authorization": {
+            "type": "object",
+            "required": [
+              "grant_id",
+              "intent_digest"
+            ],
+            "properties": {
+              "grant_id": {
+                "type": "string",
+                "format": "uri"
+              },
+              "intent_digest": {
+                "type": "string",
+                "pattern": "^sha-256:[A-Za-z0-9_-]{43}$"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "audience": {
+                "type": "string",
+                "format": "uri"
+              },
+              "constraints": {
+                "type": "object"
+              },
+              "confirmation": {},
+              "status": {
+                "type": "string"
+              },
+              "effective_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reason_code": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/madragana/lip-4d-protocol/blob/main/schemas/lip-4d-v0.3.schema.json",
+  "title": "LIP-4D protocol v0.3 structural message schema (experimental)"
+}
