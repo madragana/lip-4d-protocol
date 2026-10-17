@@ -1,6 +1,7 @@
 """Localhost-only demonstration. Generates a fresh in-memory key every run."""
 import base64
 import json
+import os
 import subprocess
 import sys
 import time
@@ -27,11 +28,14 @@ def main():
     key=Ed25519PrivateKey.generate()
     pub=key.public_key().public_bytes(encoding=serialization.Encoding.Raw,format=serialization.PublicFormat.Raw)
     arg=base64.urlsafe_b64encode(pub).decode().rstrip("=")
-    proc=subprocess.Popen(["go","run","./cmd/httpdemo","-agent-key",arg],cwd=GO,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+    binary=os.environ.get("LIP4D_HTTPDEMO_BIN")
+    command=[binary,"-agent-key",arg] if binary else ["go","run","./cmd/httpdemo","-agent-key",arg]
+    proc=subprocess.Popen(command,cwd=GO,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
     try:
-        for _ in range(100):
+        deadline=time.monotonic()+90
+        while time.monotonic()<deadline:
             if proc.poll() is not None:
-                raise RuntimeError("Go server exited before becoming available")
+                raise RuntimeError("Go server exited before becoming available: "+proc.stderr.read().decode(errors="replace")[-3000:])
             try:
                 intent=create_intent(issuer="spiffe://example.org/agent/a",audience="https://guardian.example.org",action="org.example.read",resource="https://api.example.org/record/1",purpose="Read authorised record",rationale="Local demo only",trust_domain="example.org")
                 signed=sign_message_ed25519(intent,key,kid="local-demo-agent")
@@ -39,7 +43,7 @@ def main():
                 break
             except (urllib.error.URLError,TimeoutError,ConnectionError):
                 time.sleep(.1)
-        else: raise RuntimeError("Go server did not start")
+        else: raise RuntimeError("Go server did not respond within 90 seconds; verify Go build and port availability")
         # Attestation must bind to exactly the same intent and four dimensions.
         att={
             "lip_version":"0.3","message_type":"attestation",
