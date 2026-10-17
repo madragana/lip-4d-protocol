@@ -41,9 +41,12 @@ def main():
                 signed=sign_message_ed25519(intent,key,kid="local-demo-agent")
                 challenge=post(GUARDIAN+"/begin",signed)
                 break
+            except urllib.error.HTTPError as exc:
+                details=exc.read().decode("utf-8",errors="replace").strip()
+                raise RuntimeError(f"Guardian HTTP {exc.code}: {details}") from exc
             except (urllib.error.URLError,TimeoutError,ConnectionError):
                 time.sleep(.1)
-        else: raise RuntimeError("Go server did not respond within 90 seconds; verify Go build and port availability")
+        else: raise RuntimeError("Go server did not respond within 90 seconds; check port 8765 and the Go process log")
         # Attestation must bind to exactly the same intent and four dimensions.
         att={
             "lip_version":"0.3","message_type":"attestation",
