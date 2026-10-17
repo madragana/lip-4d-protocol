@@ -1,0 +1,17 @@
+name: Go Guardian
+on:
+  push:
+    paths: ['guardian/go/**','.github/workflows/go-guardian.yml']
+  pull_request:
+    paths: ['guardian/go/**','.github/workflows/go-guardian.yml']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Unit tests
+        working-directory: guardian/go
+        run: go test ./...
