@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68","wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "lip4d-sdk"
+version = "0.1.0a1"
+description = "Experimental LIP-4D v0.3 Python SDK"
+requires-python = ">=3.10"
+dependencies = ["rfc8785>=0.1.4","cryptography>=41"]
+[project.optional-dependencies]
+test = ["pytest>=8", "jsonschema[format]>=4.22"]
+[tool.setuptools.packages.find]
+where = ["src"]
