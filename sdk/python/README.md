@@ -12,3 +12,5 @@ Features: basic envelope and intent validation, RFC 8785 canonicalisation, SHA-2
 **Security boundary:** This is **not** a Guardian, identity system, policy engine, replay cache or grant enforcement system. Callers MUST authenticate issuers and bind signing keys to them independently. An authenticated intent does not imply authorisation.
 
 Draft: https://www.ietf.org/archive/id/draft-ovidi-lip-4d-00.html
+
+See [conformance coverage](../../docs/PYTHON_CONFORMANCE.md) and [digest fixture](../../test-vectors/intent-digest-ascii.json).
