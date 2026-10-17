@@ -35,12 +35,11 @@ def main():
             try:
                 intent=create_intent(issuer="spiffe://example.org/agent/a",audience="https://guardian.example.org",action="org.example.read",resource="https://api.example.org/record/1",purpose="Read authorised record",rationale="Local demo only",trust_domain="example.org")
                 signed=sign_message_ed25519(intent,key,kid="local-demo-agent")
-                session=post(GUARDIAN+"/begin",signed)
+                challenge=post(GUARDIAN+"/begin",signed)
                 break
             except (urllib.error.URLError,TimeoutError,ConnectionError):
                 time.sleep(.1)
         else: raise RuntimeError("Go server did not start")
-        challenge=session["Challenge"]
         # Attestation must bind to exactly the same intent and four dimensions.
         att={
             "lip_version":"0.3","message_type":"attestation",
@@ -51,8 +50,8 @@ def main():
             "intent":intent["intent"],"dimensions":intent["dimensions"],
             "evidence":[{"type":"demo","format":"json","value":{"test_only":True}}]
         }
-        grant=post(GUARDIAN+"/finish",{"session":session,"attestation":sign_message_ed25519(att,key,kid="local-demo-agent")})
-        resource_request={"grant":grant,"request":{"Subject":session["Request"]["Subject"],"Audience":session["Request"]["Audience"],"IntentDigest":session["Request"]["IntentDigest"],"Action":session["Request"]["Action"],"Resource":session["Request"]["Resource"]}}
+        grant=post(GUARDIAN+"/finish",{"challenge_id":challenge["challenge_id"],"attestation":sign_message_ed25519(att,key,kid="local-demo-agent")})
+        resource_request={"grant":grant,"request":{"Subject":intent["issuer"],"Audience":"https://api.example.org","IntentDigest":__import__("lip4d").digest_intent(intent),"Action":intent["intent"]["action"],"Resource":intent["intent"]["resource"]}}
         print("First invocation:",post(RESOURCE+"/invoke",resource_request))
         try:
             post(RESOURCE+"/invoke",resource_request)
