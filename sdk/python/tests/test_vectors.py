@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from lip4d import canonicalize, digest_intent, compare_intent_digests, ProtocolError
 
-VECTOR = Path(__file__).parents[4] / "test-vectors" / "intent-digest-ascii.json"
+VECTOR = Path(__file__).parents[3] / "test-vectors" / "intent-digest-ascii.json"
 
 def test_ascii_digest_known_answer():
     payload = json.loads(VECTOR.read_text(encoding="utf-8"))
