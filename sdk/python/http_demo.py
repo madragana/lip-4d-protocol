@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import tempfile
 import socket
 import subprocess
 import sys
@@ -42,9 +43,16 @@ def main():
     pub=key.public_key().public_bytes(encoding=serialization.Encoding.Raw,format=serialization.PublicFormat.Raw)
     arg=base64.urlsafe_b64encode(pub).decode().rstrip("=")
     binary=os.environ.get("LIP4D_HTTPDEMO_BIN")
-    command=[binary,"-agent-key",arg] if binary else ["go","run","./cmd/httpdemo","-agent-key",arg]
-    proc=subprocess.Popen(command,cwd=GO,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+    # Never invoke "go run" here: it launches a second executable that
+    # survives terminating the "go" parent on Windows.
+    build_dir=None
+    if not binary:
+        build_dir=tempfile.TemporaryDirectory(prefix="lip4d-httpdemo-")
+        binary=str(Path(build_dir.name)/("httpdemo.exe" if os.name=="nt" else "httpdemo"))
+        subprocess.run(["go","build","-o",binary,"./cmd/httpdemo"],cwd=GO,check=True,timeout=120)
+    proc=None
     try:
+        proc=subprocess.Popen([binary,"-agent-key",arg],cwd=GO,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
         deadline=time.monotonic()+90
         while time.monotonic()<deadline:
             if proc.poll() is not None:
@@ -81,9 +89,15 @@ def main():
             print("Replay denied: HTTP 403")
         print("Local demonstration succeeded; no normative LIP-4D grant is claimed.")
     finally:
-        proc.terminate()
-        try:proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:proc.kill();proc.wait()
+        if proc is not None:
+            if proc.poll() is None:
+                proc.terminate()
+                try:proc.wait(timeout=3)
+                except subprocess.TimeoutExpired:proc.kill();proc.wait()
+            if proc.stderr:
+                proc.stderr.close()
+        if build_dir is not None:
+            build_dir.cleanup()
 
 if __name__=="__main__":
     try:main()
