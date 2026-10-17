@@ -12,6 +12,7 @@ import (
  "log"
  "net"
  "net/http"
+ "sync"
  "time"
 
  guardian "github.com/madragana/lip-4d-protocol/guardian/go"
@@ -19,19 +20,24 @@ import (
 type server struct {
  flow *guardian.Flow
  gate *guardian.GrantGate
+ mu sync.Mutex
+ sessions map[string]guardian.FlowSession
 }
 func (s *server) begin(w http.ResponseWriter,r *http.Request){
  if r.Method!="POST"{http.Error(w,"method not allowed",405);return}
  raw,err:=io.ReadAll(http.MaxBytesReader(w,r.Body,65536));if err!=nil{http.Error(w,"invalid request",400);return}
  session,err:=s.flow.Begin(raw,"https://api.example.org")
  if err!=nil{http.Error(w,"intent denied",403);return}
- write(w,session)
+ s.mu.Lock();s.sessions[session.Challenge.ID]=session;s.mu.Unlock()
+ write(w,session.Challenge)
 }
 func (s *server) finish(w http.ResponseWriter,r *http.Request){
  if r.Method!="POST"{http.Error(w,"method not allowed",405);return}
- var input struct{Session guardian.FlowSession `json:"session"`;Attestation json.RawMessage `json:"attestation"`}
+ var input struct{ChallengeID string `json:"challenge_id"`;Attestation json.RawMessage `json:"attestation"`}
  if err:=json.NewDecoder(http.MaxBytesReader(w,r.Body,65536)).Decode(&input);err!=nil{http.Error(w,"invalid request",400);return}
- token,err:=s.flow.Finish(input.Session,input.Attestation)
+ s.mu.Lock();session,found:=s.sessions[input.ChallengeID];if found{delete(s.sessions,input.ChallengeID)};s.mu.Unlock()
+ if !found{http.Error(w,"unknown or consumed challenge",403);return}
+ token,err:=s.flow.Finish(session,input.Attestation)
  if err!=nil{http.Error(w,"attestation denied",403);return}
  write(w,token)
 }
@@ -65,7 +71,7 @@ func main(){
  },
  }
  gate,err:=guardian.NewGrantGate(issuer,pub,clock);if err!=nil{log.Fatal(err)}
- s:=&server{flow:flow,gate:gate}
+ s:=&server{flow:flow,gate:gate,sessions:make(map[string]guardian.FlowSession)}
  gl,err:=net.Listen("tcp","127.0.0.1:8765");if err!=nil{log.Fatal(err)}
  rl,err:=net.Listen("tcp","127.0.0.1:8766");if err!=nil{log.Fatal(err)}
  g:=http.NewServeMux();g.HandleFunc("/begin",s.begin);g.HandleFunc("/finish",s.finish)
