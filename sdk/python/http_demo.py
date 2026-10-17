@@ -2,6 +2,7 @@
 import base64
 import json
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -24,7 +25,19 @@ def post(url,payload):
     with urllib.request.urlopen(req,timeout=5) as response:
         return json.load(response)
 
+def assert_ports_free():
+    for port in (8765, 8766):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(0.35)
+            if sock.connect_ex(("127.0.0.1", port)) == 0:
+                raise RuntimeError(
+                    f"Port {port} is already in use. Stop any previous httpdemo "
+                    "process before starting this demo; an old Guardian may "
+                    "reject the fresh agent key with HTTP 403."
+                )
+
 def main():
+    assert_ports_free()
     key=Ed25519PrivateKey.generate()
     pub=key.public_key().public_bytes(encoding=serialization.Encoding.Raw,format=serialization.PublicFormat.Raw)
     arg=base64.urlsafe_b64encode(pub).decode().rstrip("=")
