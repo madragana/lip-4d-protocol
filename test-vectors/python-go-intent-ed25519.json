@@ -1,0 +1,41 @@
+{
+  "note": "Experimental Python/Go ASCII integer JCS-subset vector. Test-only key; no production credentials.",
+  "public_key_raw_base64url": "QwRr_kCSs-lJlOraFdzCDYqqB7ZY_TlU644O-4vcpd4",
+  "message": {
+    "lip_version": "0.3",
+    "message_type": "intent",
+    "message_id": "urn:uuid:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "issuer": "spiffe://example.org/agent/a",
+    "audience": "https://guardian.example.org",
+    "issued_at": "2026-10-17T20:00:00Z",
+    "expires_at": "2026-10-17T20:05:00Z",
+    "intent": {
+      "action": "org.example.read",
+      "resource": "https://api.example.org/record/1",
+      "purpose": "Read authorised record",
+      "parameters": {},
+      "constraints": {}
+    },
+    "dimensions": {
+      "chronos": {
+        "not_before": "2026-10-17T20:00:00Z",
+        "not_after": "2026-10-17T20:05:00Z",
+        "sequence": 1
+      },
+      "logos": {
+        "rationale": "User request"
+      },
+      "topos": {
+        "trust_domain": "example.org"
+      },
+      "physis": {
+        "intent_id": "urn:uuid:bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        "revision": 1
+      }
+    },
+    "proof": {
+      "type": "jws-detached",
+      "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6ImludGVyb3AtdGVzdC1rZXktMSIsInR5cCI6ImFwcGxpY2F0aW9uL2xpcCtqc29uIn0..wvG7kRS79xwqPkzo8KBvJF0IpNhl-s4FxffLeCl0Z79_sspkL-46hL2OeeKLYS_LvYjUdh_27REyp6MAeAqHDw"
+    }
+  }
+}
