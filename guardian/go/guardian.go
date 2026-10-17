@@ -10,6 +10,7 @@ import (
  "encoding/json"
  "errors"
  "fmt"
+ "bytes"
  "strings"
  "time"
 )
@@ -54,7 +55,7 @@ func Evaluate(raw []byte,c Config)(Decision,error){
  if err:=json.Unmarshal(headerBytes,&header);err!=nil||header.Alg!="EdDSA"||header.Typ!="application/lip+json"||header.Kid=="" {return deny("disallowed JWS header")}
  sig,err:=base64.RawURLEncoding.DecodeString(bits[2]);if err!=nil{return deny("invalid signature encoding")}
  delete(msg,"proof")
- canonical,err:=json.Marshal(msg);if err!=nil{return deny("canonicalisation failed")}
+ canonical,err:=canonicalSubset(msg);if err!=nil{return deny("canonicalisation failed")}
  payload:=bits[0]+"."+base64.RawURLEncoding.EncodeToString(canonical)
  if !ed25519.Verify(c.PublicKey,[]byte(payload),sig){return deny("signature invalid")}
  // Future: validate chronos windows and challenge/grant lifecycle.
@@ -106,4 +107,14 @@ func checkValue(dec *json.Decoder)error{
   if strings.ContainsAny(text,".eE")||strings.HasPrefix(text,"-0"){return fmt.Errorf("unsupported numeric form")}
  }
  return nil
+}
+
+// canonicalSubset sorts JSON object keys at every depth under the project's
+// restricted ASCII/integer profile. This is NOT general RFC 8785 support.
+func canonicalSubset(m map[string]json.RawMessage)([]byte,error){
+ raw,err:=json.Marshal(m);if err!=nil{return nil,err}
+ decoder:=json.NewDecoder(bytes.NewReader(raw));decoder.UseNumber()
+ var generic any
+ if err:=decoder.Decode(&generic);err!=nil{return nil,err}
+ return json.Marshal(generic)
 }

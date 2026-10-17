@@ -73,7 +73,7 @@ func verifyAttestationSignature(raw []byte,pub ed25519.PublicKey)error{
  if json.Unmarshal(hb,&h)!=nil||h.Alg!="EdDSA"||h.Typ!="application/lip+json"||h.Kid==""{return ErrDenied}
  sig,err:=base64.RawURLEncoding.DecodeString(parts[2]);if err!=nil{return ErrDenied}
  delete(m,"proof")
- payload,err:=json.Marshal(m);if err!=nil{return ErrDenied}
+ payload,err:=canonicalSubset(m);if err!=nil{return ErrDenied}
  input:=parts[0]+"."+base64.RawURLEncoding.EncodeToString(payload)
  if !ed25519.Verify(pub,[]byte(input),sig){return errors.New("invalid attestation signature")}
  return nil
