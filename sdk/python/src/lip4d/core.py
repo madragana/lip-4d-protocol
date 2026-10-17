@@ -1,6 +1,8 @@
 """Experimental LIP-4D envelope, binding digest and builder (draft-ovidi-lip-4d-00)."""
 import base64
 import hashlib
+import hmac
+import re
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlsplit
 from uuid import uuid4
@@ -67,12 +69,19 @@ def validate_message(message, *, require_proof=True, now=None):
             _uri(auth.get("grant_id"),"grant_id")
             _uri(auth.get("audience"),"grant audience")
             _time(auth.get("expires_at"),"grant expires_at")
-            if not isinstance(auth.get("intent_digest"),str) or not isinstance(auth.get("constraints"),dict) or "confirmation" not in auth:
+            _digest(auth.get("intent_digest"))
+            if not isinstance(auth.get("constraints"),dict) or "confirmation" not in auth:
                 raise ProtocolError("incomplete grant")
         if kind == "denial" and auth.get("status") != "denied": raise ProtocolError("denial status")
+        if kind == "revocation":
+            _uri(auth.get("grant_id"),"grant_id")
+            _digest(auth.get("intent_digest"))
+            _time(auth.get("effective_at"),"effective_at")
+            if not isinstance(auth.get("reason_code"),str) or not auth["reason_code"]:
+                raise ProtocolError("revocation reason_code required")
         if kind == "invocation":
             _uri(auth.get("grant_id"),"grant_id")
-            if not isinstance(auth.get("intent_digest"),str): raise ProtocolError("digest missing")
+            _digest(auth.get("intent_digest"))
     if "evidence" in message:
         if not isinstance(message["evidence"],list): raise ProtocolError("evidence array")
         for ev in message["evidence"]:
@@ -82,6 +91,16 @@ def validate_message(message, *, require_proof=True, now=None):
         proof = message.get("proof")
         if not isinstance(proof,dict) or proof.get("type") != "jws-detached" or not isinstance(proof.get("jws"),str):
             raise ProtocolError("detached JWS required")
+
+def _digest(value):
+    if not isinstance(value, str) or not re.fullmatch(r"sha-256:[A-Za-z0-9_-]{43}", value):
+        raise ProtocolError("invalid sha-256 digest encoding")
+
+def compare_intent_digests(expected, actual):
+    """Compare prevalidated, encoded intent digests in constant time."""
+    _digest(expected)
+    _digest(actual)
+    return hmac.compare_digest(expected.encode("ascii"), actual.encode("ascii"))
 
 def digest_intent(message):
     binding = {key:message[key] for key in ("issuer","audience","intent","dimensions")}
